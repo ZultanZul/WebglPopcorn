@@ -113,40 +113,7 @@ function createLights() {
 // }
 
 
-// //OBJ ONLY
-
-// function Model() {
-
-// 	this.mesh = new THREE.Object3D();	
-
-// 	var _this = this;
-	
-// 	var objLoader = new THREE.OBJLoader();
-// 	objLoader.setPath('../model/');		
-// 	objLoader.load( 'popcorn' + '.obj', function (object) {
-// 		var matPopCorn = new THREE.MeshLambertMaterial({color: 0xFFFFFF, shading:THREE.SmoothShading});
-
-
-// 		object.children.forEach(function (child) {
-// 	       child.material = matPopCorn;
-// 	       child.geometry.computeFaceNormals();
-// 	       child.geometry.computeVertexNormals();
-// 	     });
-
-// 		object.scale.set(5,5,5);
-// 		object.position.x = 0;
-// 		object.position.y = 0;
-// 		object.position.z = 0;
-
-// 		_this.mesh.add(object);
-
-// 		finishedLoading();
-
-// 	});
-// }
-
-
-//JSON
+//OBJ ONLY
 
 function Model() {
 
@@ -154,31 +121,64 @@ function Model() {
 
 	var _this = this;
 	
-	var JSONLoader = new THREE.ObjectLoader();
+	var objLoader = new THREE.OBJLoader();
+	objLoader.setPath('../model/');		
+	objLoader.load( 'popcorn' + '.obj', function (object) {
+		var matPopCorn = new THREE.MeshLambertMaterial({color: 0xFFFFFF, shading:THREE.SmoothShading});
 
-	JSONLoader.load(
 
-	 '../model/popcorn.json', 
-
-	 function (object) {
-		var matPopCorn = new THREE.MeshStandardMaterial({color: 0xFFFFFF, shading:THREE.SmoothShading, emissiveIntensity: .25, metalness: .01, roughness: .1, wireframe:false});
 		object.children.forEach(function (child) {
 	       child.material = matPopCorn;
 	       child.geometry.computeFaceNormals();
 	       child.geometry.computeVertexNormals();
 	     });
 
-		object.scale.set(5,5,5);		
+		object.scale.set(5,5,5);
+		object.position.x = 0;
+		object.position.y = 0;
+		object.position.z = 0;
+
 		_this.mesh.add(object);
+
 		finishedLoading();
-	},
-	function ( xhr ) {
-        console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-    },
-    function ( xhr ) {
-        console.error( 'An error happened' );
-    });
+
+	});
 }
+
+
+// //JSON
+
+// function Model() {
+
+// 	this.mesh = new THREE.Object3D();	
+
+// 	var _this = this;
+	
+// 	var JSONLoader = new THREE.ObjectLoader();
+
+// 	JSONLoader.load(
+
+// 	 '../model/popcorn.json', 
+
+// 	 function (object) {
+// 		var matPopCorn = new THREE.MeshStandardMaterial({color: 0xFFFFFF, shading:THREE.SmoothShading, emissiveIntensity: .25, metalness: .01, roughness: .1, wireframe:false});
+// 		object.children.forEach(function (child) {
+// 	       child.material = matPopCorn;
+// 	       child.geometry.computeFaceNormals();
+// 	       child.geometry.computeVertexNormals();
+// 	     });
+
+// 		object.scale.set(5,5,5);		
+// 		_this.mesh.add(object);
+// 		finishedLoading();
+// 	},
+// 	function ( xhr ) {
+//         console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+//     },
+//     function ( xhr ) {
+//         console.error( 'An error happened' );
+//     });
+// }
 
 
 
