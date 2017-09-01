@@ -14,6 +14,7 @@ function createScene() {
 	HEIGHT = window.innerHeight;
 	WIDTH = window.innerWidth;
 	scene = new THREE.Scene();
+	//scene.fog = new THREE.Fog (0x000000, 500, 900); 
 	aspectRatio = WIDTH / HEIGHT;
 	fieldOfView = 60;
 	nearPlane = 1;
@@ -33,6 +34,7 @@ function createScene() {
 	});
 
 	renderer.setSize(WIDTH, HEIGHT);
+//	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.shadowMap.enabled = true;
 	container = document.getElementById('canvas');
 	container.appendChild(renderer.domElement);
@@ -51,23 +53,70 @@ function handleWindowResize() {
 var hemisphereLight, shadowLight, offLight;
 
 function createLights() {
-	hemisphereLight = new THREE.HemisphereLight(0xaaaaaa,0x000000, .9)
+	hemisphereLight = new THREE.HemisphereLight(0xffffff,0x000000, 1)
 	scene.add(hemisphereLight);  
 
-	shadowLight = new THREE.DirectionalLight(0xffffff, .9);
+	// lens flares
+	var textureLoader = new THREE.TextureLoader();
 
-	shadowLight.position.set(150, 350, 350);
-	shadowLight.castShadow = true;
-	shadowLight.shadow.camera.left = -700;
-	shadowLight.shadow.camera.right = 700;
-	shadowLight.shadow.camera.top = 500;
-	shadowLight.shadow.camera.bottom = -500;
-	shadowLight.shadow.camera.near = 1;
-	shadowLight.shadow.camera.far = 1000;
-	shadowLight.shadow.mapSize.width = 2056;
-	shadowLight.shadow.mapSize.height = 2056;
+	var textureFlare0 = textureLoader.load( "images/lensflare/lensflare0_blue.png" );
+	var textureFlare2 = textureLoader.load( "images/lensflare/lensflare2.png" );
+	var textureFlare3 = textureLoader.load( "images/lensflare/lensflare3_blue.png" );
 
-	scene.add(shadowLight);
+	addLight( -300, 400, -1000);
+
+	function addLight(x, y, z ) {
+
+		var light = new THREE.PointLight( 0xffffff, 1.5, 2000 );
+		//	light.color.setHSL( h, s, l );
+		light.position.set( x, y, z );
+		scene.add( light );
+
+		var flareColor = new THREE.Color( 0xffffff );
+		//flareColor.setHSL( h, s, l + 0.5 );
+
+		var lensFlare = new THREE.LensFlare( textureFlare0, 400, 0, THREE.AdditiveBlending, flareColor );
+
+		lensFlare.add( textureFlare2, 256,0, THREE.AdditiveBlending );
+		lensFlare.add( textureFlare2, 256,0, THREE.AdditiveBlending );
+		lensFlare.add( textureFlare2, 256, 0, THREE.AdditiveBlending );
+
+		lensFlare.add( textureFlare3, 60, 0.6, THREE.AdditiveBlending );
+		lensFlare.add( textureFlare3, 70, 0.7, THREE.AdditiveBlending );
+		lensFlare.add( textureFlare3, 120, 0.9, THREE.AdditiveBlending );
+		lensFlare.add( textureFlare3, 70, 1.0, THREE.AdditiveBlending );
+
+		lensFlare.customUpdateCallback = lensFlareUpdateCallback;
+		lensFlare.position.copy( light.position );
+
+		scene.add( lensFlare );
+
+	}
+
+}
+
+ function lensFlareUpdateCallback( object ) {
+
+	var f, fl = object.lensFlares.length;
+	var flare;
+	var vecX = -object.positionScreen.x * 2;
+	var vecY = -object.positionScreen.y * 2;
+
+
+	for( f = 0; f < fl; f++ ) {
+
+		flare = object.lensFlares[ f ];
+
+		flare.x = object.positionScreen.x + vecX * flare.distance;
+		flare.y = object.positionScreen.y + vecY * flare.distance;
+
+		flare.rotation = 0;
+
+	}
+
+	object.lensFlares[ 2 ].y += 0.025;
+	object.lensFlares[ 3 ].rotation = object.positionScreen.x * 0.5 + THREE.Math.degToRad( 45 );
+
 }
 
 
@@ -111,6 +160,8 @@ function createLights() {
 // 	});
 
 // }
+
+
 
 
 // //OBJ ONLY
@@ -182,7 +233,6 @@ function Model() {
 
 
 
-
 function finishedLoading(){
 	loaded = true;
 	document.getElementById('preloader').classList.add('hidden');
@@ -216,15 +266,12 @@ function initSkybox(){
 	} ), skyBox = new THREE.Mesh( new THREE.BoxGeometry( 1000, 1000, 1000 ), material );
 
 	scene.add( skyBox );
-
-
 }
 
 var model;
 
 function createModel(){ 
 	model = new Model();
-	//model.mesh.position.set(0,0,-20);
 	model.mesh.castShadow = true;
 	model.mesh.receiveShadow = true;
 	scene.add(model.mesh);
@@ -248,15 +295,16 @@ function loop(){
 
 function animation (){
 
-	camera.rotation.z +=0.005;
+	//CAMERA Animations
+	camera.rotation.z +=0.003;
 	camera.rotation.y = (Math.sin(Date.now() * 0.002) * Math.PI * 0.01 );
 	//camera.rotation.x = Math.sin(Date.now() * 0.005) * Math.PI * 0.02;
 
+	//PopCorn Spin
 	model.mesh.rotation.x +=0.05;
 	model.mesh.rotation.y +=0.05;
 	//model.mesh.rotation.z +=0.05;
  	model.mesh.rotation.z = Math.sin(Date.now() * 0.001) * Math.PI * 0.2;
-
- 	model.mesh.position.z -=0.5;
+ 	model.mesh.position.z -=.75;
 
 }
